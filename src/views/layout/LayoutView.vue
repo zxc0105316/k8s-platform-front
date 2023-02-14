@@ -67,26 +67,83 @@
       </el-aside>
       <el-container>
         <el-header class="container-header">
-
-          <el-orw :gutter="20">
+          <el-row :gutter="20">
 
           <!--  折叠按钮   -->
-            <el-col :span="1">
-              <div class="header-collapse" @click="onCollapse">
-                <el-icon><component :is="isCollapse?'expand':'fold'"></component></el-icon>
+          <el-col :span="1">
+            <div class="header-collapse" @click="onCollapse">
+              <el-icon><component :is="isCollapse?'expand':'fold'"></component></el-icon>
+            </div>
+          </el-col>
+
+
+          <!--  面包屑   -->
+          <el-col :span="10">
+
+            <div class="header-breadcrumb">
+
+              <el-breadcrumb separator="/" separator-icon="ArrowRight" >
+                <!-- 这里开头的部分写死 -->
+                <el-breadcrumb-item :to="{ path: '/'}"> 工作台 </el-breadcrumb-item>
+                <!--   循环路由规则中的父亲name的儿子name                -->
+                <template v-for="(matched,m) in this.$route.matched" :key="m">
+
+                  <el-breadcrumb-item v-if="matched.name!=undefined">
+
+                    {{ matched.name }}
+
+                  </el-breadcrumb-item>
+
+
+                </template>
+              </el-breadcrumb>
+            </div>
+          </el-col>
+
+
+
+
+          <el-col :span="13">
+              <div class="header-user">
+                <el-dropdown>
+                  <div class="header-dropdown">
+                    <!--  用户头像和用户名                     -->
+                    <el-image class="avator-image" :src="avator"></el-image>
+                    <span class="username"> {{ username }}</span>
+                  </div>
+
+                  <template #dropdown>
+
+                    <el-dropdown-menu>
+
+                      <el-dropdown-item  class="changepass">修改密码</el-dropdown-item>
+                      <el-dropdown-item class="logout" @click="logout()">退出</el-dropdown-item>
+                    </el-dropdown-menu>
+
+
+
+                  </template>
+                </el-dropdown>
               </div>
             </el-col>
-          </el-orw>
 
 
+          </el-row>
         </el-header>
-        <el-main>main
-          <router-view>
 
+        <el-main class="main">
+          <router-view>
           </router-view>
         </el-main>
-        <el-footer>Footer</el-footer>
-
+        <el-footer class="footer">
+        <!--   图标     -->
+        <el-icon style="width:2em;top:3px;font-size: 18px;">
+            <place/>
+        </el-icon>
+        <!--   描述     -->
+        <a href="">2023 devops </a>
+        </el-footer>
+        <el-backtop target=".main"> </el-backtop>
 
       </el-container>
     </el-container>
@@ -95,7 +152,7 @@
 
 
 <script>
-import {onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import {useRouter} from "vue-router";
 
 export default {
@@ -108,6 +165,7 @@ export default {
     const logo = ref(require('@/assets/img/k8s-metrics.png'))
     const isCollapse = ref(false)
     const routers = ref([])
+    const avator = ref(require('@/assets/img/avator.png'))
 
     const onCollapse = function (){
         //  当前状态是展开，点击就收起
@@ -121,6 +179,16 @@ export default {
         }
     }
 
+    const logout = function (){
+
+    }
+
+    const username = computed(() => {
+
+      let username = localStorage.getItem("username");
+      return username ? username:"未知"
+    })
+
     onBeforeMount(() =>{
       routers.value = useRouter().options.routes
     })
@@ -131,6 +199,9 @@ export default {
       isCollapse,
       routers,
       onCollapse,
+      avator,
+      logout,
+      username
 
       }
     },
@@ -224,6 +295,65 @@ export default {
 
 }
 
-.header-collapse{}
+.header-collapse {
+
+  cursor: pointer;
+}
+
+.avator-image {
+  top: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.header-user {
+
+  text-align: right;
+}
+
+.header-dropdown {
+
+  line-height: 60px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+
+}
+
+.header-breadcrumb {
+
+
+  padding-top: 0.9em;
+
+
+}
+
+.username {
+  font-size: 14px;
+  align-self:center;
+}
+
+.main {
+
+  padding: 10px;
+  background-color: aqua;
+
+}
+
+.footer {
+
+
+  z-index: 1200;
+  color: rgb(187,184,184);
+  font-size: 14px;
+  text-align: center;
+  line-height: 60px;
+
+}
+
 
 </style>
+
+
